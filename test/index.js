@@ -1,31 +1,30 @@
-import assert from 'assert';
 import expect from 'expect';
 
 import Maitre from '../src';
 
 describe('Maitre', () => {
   it('is a function', () => {
-    assert(Maitre.constructor === Function);
+    expect(Maitre.constructor === Function).toEqual(true);
   });
 
   it('returns a prototype', () => {
     const app = new Maitre();
     const proto = [ 'use', 'get', 'post', 'put', 'delete', 'listen' ];
 
-    proto.forEach(p => assert(app[p].constructor === Function, `${p} is not a function`));
+    proto.forEach(p => expect(app[p].constructor === Function, `${p} is not a function`).toEqual(true));
   });
 
   describe('port', () => {
     it('is undefined by default', () => {
       const app = new Maitre();
 
-      assert(app.port === undefined);
+      expect(app.port === undefined).toEqual(true);
     });
 
     it('sets port number from the constructor', () => {
       const app = new Maitre(1337);
 
-      assert(app.port === 1337);
+      expect(app.port === 1337).toEqual(true);
     });
 
     it('sets port number from a setter', () => {
@@ -33,7 +32,7 @@ describe('Maitre', () => {
 
       app.port = 1337;
 
-      assert(app.port === 1337);
+      expect(app.port === 1337).toEqual(true);
     });
 
     it('sets the portnumber through the listener', done => {
@@ -41,7 +40,7 @@ describe('Maitre', () => {
 
       app.listen(1337);
 
-      assert(app.port === 1337);
+      expect(app.port === 1337).toEqual(true);
       done();
     });
 
