@@ -1,11 +1,10 @@
 import { createServer } from 'http';
 
-const server = createServer();
-
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
     this.__port__ = port;
     this.middlewares = middlewares;
+    this.server = createServer();
   }
 
   set port(p) {
@@ -22,9 +21,8 @@ export default class Maitre {
   put(thunk) {}
   delete(thunk) {}
 
-  close(func) {
-    console.log('YOU NEED TO WRITE A TEST AROUND CLOSE STILL'); // eslint-disable-line
-    server.close(func);
+  close(func = () => {}) {
+    this.server.close(func);
   }
 
   listen (p, func) {
@@ -53,6 +51,6 @@ export default class Maitre {
         throw new Error('Default has been reached, please file a bug with your set up on https://github.com/tbremer/maitre Thanks!');
     }
 
-    server.listen(this.port, callback);
+    this.server.listen(this.port, callback);
   }
 }

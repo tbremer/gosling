@@ -10,7 +10,7 @@ describe('Maitre', () => {
 
   it('returns a prototype', () => {
     const app = new Maitre();
-    const proto = [ 'use', 'get', 'post', 'put', 'delete', 'listen' ];
+    const proto = [ 'close', 'delete', 'get', 'listen', 'post', 'put',  'use', ];
 
     proto.forEach(p => expect(app[p].constructor === Function, `${p} is not a function`).toEqual(true));
   });
@@ -41,8 +41,10 @@ describe('Maitre', () => {
 
       app.listen(1337);
 
-      expect(app.port === 1337).toEqual(true);
-      done();
+      process.nextTick(() => {
+        expect(app.port === 1337).toEqual(true);
+        app.close(done);
+      })
     });
 
     it('A port has to be set.', () => {
@@ -71,6 +73,23 @@ describe('Maitre', () => {
           app.listen(1111);
         }).toThrow('Port should not be reassigned.');
       });
+    });
+  });
+
+  describe('close', () => {
+    it('should close the existing server', async done => {
+      const app = new Maitre(1337);
+
+      app.listen();
+
+      const EXPECT = await testPort(1337);
+
+      expect(EXPECT).toEqual(true);
+      app.close();
+      const EXPECT2 = await testPort(1337);
+
+      expect(EXPECT2).toEqual(false);
+      done();
     });
   });
 
