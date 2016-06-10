@@ -1,3 +1,7 @@
+import { createServer } from 'http';
+
+const server = createServer();
+
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
     this.__port__ = port;
@@ -18,17 +22,37 @@ export default class Maitre {
   put(thunk) {}
   delete(thunk) {}
 
-  listen (p) {
+  close(func) {
+    console.log('YOU NEED TO WRITE A TEST AROUND CLOSE STILL'); // eslint-disable-line
+    server.close(func);
+  }
+
+  listen (p, func) {
+    let callback = func ? func : () => {};
+
     switch (true) {
+      case (Boolean(!p && this.port)):
+        break;
+
       case (Boolean(p && !(this.port))):
         this.port = p;
         break;
+
+      case (Boolean(p && p.constructor === Function && this.port)):
+        callback = p;
+        break;
+
+      case (Boolean(!p && !this.port)):
+      case (Boolean(p && p.constructor === Function && !(this.port))):
+        throw new Error('No port has been set.');
+
       case (Boolean(p && this.port)):
         throw new Error('Port should not be reassigned.');
-      case (Boolean(!p && !this.port)):
-        throw new Error('No port has been set.');
+
       default:
         throw new Error('Default has been reached, please file a bug with your set up on https://github.com/tbremer/maitre Thanks!');
     }
+
+    server.listen(this.port, callback);
   }
 }
