@@ -1,10 +1,14 @@
 import { createServer } from 'http';
 
+// function mutateListener(listener) {}
+
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
     this.__port__ = port;
     this.middlewares = middlewares;
     this.server = createServer();
+
+    this.server._events.request = this.middlewares;
   }
 
   set port(p) {
@@ -15,11 +19,15 @@ export default class Maitre {
 
   get port() { return this.__port__; }
 
-  use(thunk) {}
-  get(thunk) {}
-  post(thunk) {}
-  put(thunk) {}
-  delete(thunk) {}
+  use(thunk) {
+    if (thunk.constructor !== Function) throw new Error('The use method only takes functions');
+
+    this.middlewares.push(thunk);
+  }
+  // get(thunk) {}
+  // post(thunk) {}
+  // put(thunk) {}
+  // delete(thunk) {}
 
   close(func = () => {}) {
     this.server.close(func);

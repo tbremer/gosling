@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import Maitre from '../src';
-import { testPort } from './utils';
+import { testPort, noop } from './utils';
 
 describe('Maitre', () => {
   it('is a function', () => {
@@ -10,7 +10,7 @@ describe('Maitre', () => {
 
   it('returns a prototype', () => {
     const app = new Maitre();
-    const proto = [ 'close', 'delete', 'get', 'listen', 'post', 'put',  'use', ];
+    const proto = [ 'close', /*'delete', 'get',*/ 'listen', /*'post', 'put',*/ 'use' ];
 
     proto.forEach(p => expect(app[p].constructor === Function, `${p} is not a function`).toEqual(true));
   });
@@ -44,7 +44,7 @@ describe('Maitre', () => {
       process.nextTick(() => {
         expect(app.port === 1337).toEqual(true);
         app.close(done);
-      })
+      });
     });
 
     it('A port has to be set.', () => {
@@ -116,5 +116,33 @@ describe('Maitre', () => {
       expect(EXPECT).toEqual(true);
       app.close(done);
     });
+  });
+
+  describe('use', () => {
+    let app;
+
+    beforeEach(() => {
+      app = new Maitre();
+    });
+
+    afterEach(() => {
+      app.close();
+      app = undefined;
+    });
+
+    it('should throw an error if you pass it something other than a function', () => {
+      expect(() => {
+        app.use('');
+      }).toThrow('The use method only takes functions');
+    });
+
+    it('should add function to this.middlewares', () => {
+      app.use(noop);
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0]).toEqual(noop);
+    });
+
+    it('should be run on all requests');
   });
 });

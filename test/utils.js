@@ -19,3 +19,7 @@ export async function testPort (port) {
     server.listen(port);
   });
 }
+
+export function noop() {
+  return null;
+}
