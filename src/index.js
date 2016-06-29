@@ -31,9 +31,9 @@ export default class Maitre {
   }
 
   // get(path, thunk) {}
-  // post(thunk) {}
-  // put(thunk) {}
-  // delete(thunk) {}
+  // post(path, thunk) {}
+  // put(path, thunk) {}
+  // delete(path, thunk) {}
 
   close(func = () => {}) {
     this.server.close(func);
