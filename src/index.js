@@ -7,7 +7,7 @@ export default class Maitre {
     this.middlewares = middlewares;
     this.server = createServer();
 
-    this.server._events.request = this.middlewares;
+    // this.server._events.request = this.middlewares;
   }
 
   set port(p) {
@@ -30,7 +30,24 @@ export default class Maitre {
     return this;
   }
 
-  // get(path, thunk) {}
+  get(path, thunk) {
+    if ((!path && !thunk) || (path && path.constructor !== Function && !path.thunk && !thunk)) throw new Error('Get takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    if (path.constructor === Function) {
+      thunk = path;
+      path = Object.assign({}, defaultPathObj, { method: /get/i });
+    }
+
+    if (path.constructor === String || path instanceof RegExp) {
+      path = {
+        path,
+        method: /get/i
+      };
+    }
+
+    this.middlewares.push(createRequestObj(path, thunk));
+
+    return this;
+  }
   // post(path, thunk) {}
   // put(path, thunk) {}
   // delete(path, thunk) {}

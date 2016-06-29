@@ -189,5 +189,96 @@ describe('Maitre', () => {
       app.use(/\/foo/, () => {});
       expect(app.middlewares.length).toEqual(1);
     });
+
+    it('should allow any method', () => {
+      app.use(() => {});
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0].method.test('GET')).toEqual(true);
+      expect(app.middlewares[0].method.test('PUT')).toEqual(true);
+      expect(app.middlewares[0].method.test('DELETE')).toEqual(true);
+      expect(app.middlewares[0].method.test('UPDATE')).toEqual(true);
+      expect(app.middlewares[0].method.test('POST')).toEqual(true);
+    });
+  });
+
+  describe('get', () => {
+    let app;
+
+    beforeEach(() => {
+      app = new Maitre();
+    });
+
+    afterEach(() => {
+      app.close();
+      app = undefined;
+    });
+
+    it('should throw an error if you pass an empty path, and no thunk', () => {
+      expect(() => {
+        app.get('');
+      }).toThrow('Get takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    });
+
+    it('should throw an error if you pass a path but no thunk', () => {
+      expect(() => {
+        app.get('/');
+      }).toThrow('Get takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    });
+
+    it('should throw an error if you pass a path and a function and the path is not an object or a string', () => {
+      expect(() => {
+        app.get([], () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+
+      expect(() => {
+        app.get(true, () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+
+      expect(() => {
+        app.get(false, () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+    });
+
+    it('should allow you to pass a thunk as the first argument', () => {
+      app.get(() => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should update `this.middlewares`', () => {
+      app.get(() => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should be chainable', () => {
+      app.get(() => {}).get(() => {});
+      expect(app.middlewares.length).toEqual(2);
+    });
+
+    it('should allow paths to be String', () => {
+      app.get('/', () => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should allow paths to be Objects', () => {
+      app.get({
+        path: '/',
+        method: 'GET',
+        thunk() { return; }
+      });
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should allow paths to be RegExp objects', () => {
+      app.get(/\/foo/, () => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should only use methods of GET', () => {
+      app.get(() => {});
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0].method.test('GET')).toEqual(true);
+    });
   });
 });
