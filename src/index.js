@@ -1,6 +1,5 @@
 import { createServer } from 'http';
-
-// function mutateListener(listener) {}
+import { createPathObj, defaultPathObj } from './utils';
 
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
@@ -19,11 +18,18 @@ export default class Maitre {
 
   get port() { return this.__port__; }
 
-  use(thunk) {
-    if (thunk.constructor !== Function) throw new Error('The use method only takes functions');
+  use(path, thunk) {
+    if ((!path && !thunk) || (path && path.constructor !== Function && !thunk)) throw new Error('Use takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    if (path.constructor === Function) {
+      thunk = path;
+      path = Object.assign({}, defaultPathObj, { path, thunk });
+    }
 
-    this.middlewares.push(thunk);
+    this.middlewares.push(createPathObj(path, thunk));
+
+    return this;
   }
+
   // get(thunk) {}
   // post(thunk) {}
   // put(thunk) {}

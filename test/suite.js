@@ -130,19 +130,50 @@ describe('Maitre', () => {
       app = undefined;
     });
 
-    it('should throw an error if you pass it something other than a function', () => {
+    it('should throw an error if you pass an empty path, and no thunk', () => {
       expect(() => {
         app.use('');
-      }).toThrow('The use method only takes functions');
+      }).toThrow('Use takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
     });
 
-    it('should add function to this.middlewares', () => {
-      app.use(noop);
+    it('should throw an error if you pass a path but no thunk', () => {
+      expect(() => {
+        app.use('/');
+      }).toThrow('Use takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    });
 
+    it('should allow you to pass a thunk as the first argument', () => {
+      app.use(() => {});
       expect(app.middlewares.length).toEqual(1);
-      expect(app.middlewares[0]).toEqual(noop);
     });
 
-    it('should be run on all requests');
+    it('should update `this.middlewares`', () => {
+      app.use(() => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should be chainable', () => {
+      app.use(() => {}).use(() => {});
+      expect(app.middlewares.length).toEqual(2);
+    });
+
+    it('should allow paths to be RegExp objects', () => {
+      app.use(/\/foo/, () => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should throw an error if you pass a path and a function and the path is not an object or a string', () => {
+      expect(() => {
+        app.use([], () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+
+      expect(() => {
+        app.use(true, () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+
+      expect(() => {
+        app.use(false, () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+    });
   });
 });
