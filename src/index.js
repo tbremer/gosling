@@ -1,5 +1,5 @@
 import { createServer } from 'http';
-import { createRequestObj } from './utils';
+import { createRequestObj, defaultPathObj } from './utils';
 
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
@@ -22,7 +22,7 @@ export default class Maitre {
     if ((!path && !thunk) || (path && path.constructor !== Function && !path.thunk && !thunk)) throw new Error('Use takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
     if (path.constructor === Function) {
       thunk = path;
-      path = { path: /.+/, method: /.+/ };
+      path = Object.assign({}, defaultPathObj);
     }
 
     this.middlewares.push(createRequestObj(path, thunk));
