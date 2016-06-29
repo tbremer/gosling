@@ -4,7 +4,7 @@ export const defaultPathObj = {
   thunk() { return null; }
 };
 
-export function createPathObj (path, thunk) {
+export function createRequestObj (path, thunk) {
   if (path.constructor === Object) return Object.assign({}, defaultPathObj, path);
   if (path.constructor === String || path instanceof RegExp) return Object.assign({}, defaultPathObj, { path, thunk });
 
