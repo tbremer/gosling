@@ -22,7 +22,7 @@ export default class Maitre {
     if ((!path && !thunk) || (path && path.constructor !== Function && !path.thunk && !thunk)) throw new Error('Use takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
     if (path.constructor === Function) {
       thunk = path;
-      path = '.+';
+      path = { path: /.+/, method: /.+/ };
     }
 
     this.middlewares.push(createRequestObj(path, thunk));
@@ -30,7 +30,7 @@ export default class Maitre {
     return this;
   }
 
-  // get(thunk) {}
+  // get(path, thunk) {}
   // post(thunk) {}
   // put(thunk) {}
   // delete(thunk) {}
