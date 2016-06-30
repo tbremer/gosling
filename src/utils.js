@@ -3,6 +3,10 @@ export const defaultPathObj = {
   method: /.+/
 };
 
+export function createRequestObj2 (curPath, curThunk, methodReg) {
+
+}
+
 export function createRequestObj (path, thunk) {
   if (path.constructor === Object) {
     return Object.assign({}, defaultPathObj, path);
