@@ -7,7 +7,29 @@ export default class Maitre {
     this.middlewares = middlewares;
     this.server = createServer();
 
-    // this.server._events.request = this.middlewares;
+    this.server.on('request', (req, res) => {
+      let index = -1;
+
+      const next = () => {
+        index++;
+        const middleware = this.middlewares[index];
+
+        if (!middleware) {
+          if (!res.finished) res.end('foo');
+          index = -1;
+
+          return;
+        }
+
+        if (!middleware.path.test(req.url)) return next();
+        if (!middleware.method.test(req.method)) return next();
+        const thunk = middleware.thunk();
+
+        return thunk(req, res, next);
+      };
+
+      next();
+    });
   }
 
   set port(p) {
