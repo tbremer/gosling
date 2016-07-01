@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import Maitre from '../src';
-import { testPort, noop } from './utils';
+import { testPort, baseSuite } from './utils';
 
 describe('Maitre', () => {
   it('is a function', () => {
@@ -119,81 +119,11 @@ describe('Maitre', () => {
   });
 
   describe('use', () => {
-    let app;
-
-    beforeEach(() => {
-      app = new Maitre();
-    });
-
-    afterEach(() => {
-      app.close();
-      app = undefined;
-    });
-
-    it('should throw an error if you pass an empty path, and no thunk', () => {
-      expect(() => {
-        app.use('');
-      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    });
-
-    it('should throw an error if you pass a path but no thunk', () => {
-      expect(() => {
-        app.use('/');
-      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    });
-
-    it('should throw an error if you pass a path and a function and the path is not an object or a string', () => {
-      expect(() => {
-        const path = [];
-        const thunk = () => {};
-
-        app.use(path, thunk);
-      }).toThrow('Path must be an Object, String, or RegExp');
-
-      expect(() => {
-        app.use(true, () => {});
-      }).toThrow('Path must be an Object, String, or RegExp');
-
-      expect(() => {
-        app.use(false, () => {});
-      }).toThrow('Path must be an Object, String, or RegExp');
-    });
-
-    it('should allow you to pass a thunk as the first argument', () => {
-      app.use(() => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should update `this.middlewares`', () => {
-      app.use(() => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should be chainable', () => {
-      app.use(() => {}).use(() => {});
-      expect(app.middlewares.length).toEqual(2);
-    });
-
-    it('should allow paths to be String', () => {
-      app.use('/', () => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should allow paths to be Objects', () => {
-      app.use({
-        path: '/',
-        method: 'GET',
-        thunk() { return; }
-      });
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should allow paths to be RegExp objects', () => {
-      app.use(/\/foo/, () => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
+    baseSuite(Maitre, 'use');
 
     it('should allow any method', () => {
+      const app = new Maitre();
+
       app.use(() => {});
 
       expect(app.middlewares.length).toEqual(1);
@@ -206,81 +136,11 @@ describe('Maitre', () => {
   });
 
   describe('get', () => {
-    let app;
-
-    beforeEach(() => {
-      app = new Maitre();
-    });
-
-    afterEach(() => {
-      app.close();
-      app = undefined;
-    });
-
-    it('should throw an error if you pass an empty path, and no thunk', () => {
-      expect(() => {
-        app.get('');
-      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    });
-
-    it('should throw an error if you pass a path but no thunk', () => {
-      expect(() => {
-        app.get('/');
-      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    });
-
-    it('should throw an error if you pass a path and a function and the path is not an object or a string', () => {
-      expect(() => {
-        const path = [];
-        const thunk = () => {};
-
-        app.get(path, thunk);
-      }).toThrow('Path must be an Object, String, or RegExp');
-
-      expect(() => {
-        app.get(true, () => {});
-      }).toThrow('Path must be an Object, String, or RegExp');
-
-      expect(() => {
-        app.get(false, () => {});
-      }).toThrow('Path must be an Object, String, or RegExp');
-    });
-
-    it('should allow you to pass a thunk as the first argument', () => {
-      app.get(() => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should update `this.middlewares`', () => {
-      app.get(() => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should be chainable', () => {
-      app.get(() => {}).get(() => {});
-      expect(app.middlewares.length).toEqual(2);
-    });
-
-    it('should allow paths to be String', () => {
-      app.get('/', () => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should allow paths to be Objects', () => {
-      app.get({
-        path: '/',
-        method: 'GET',
-        thunk() { return; }
-      });
-      expect(app.middlewares.length).toEqual(1);
-    });
-
-    it('should allow paths to be RegExp objects', () => {
-      app.get(/\/foo/, () => {});
-      expect(app.middlewares.length).toEqual(1);
-    });
+    baseSuite(Maitre, 'get');
 
     it('should only allow GET methods', () => {
+      const app = new Maitre();
+
       app.get(() => {});
 
       expect(app.middlewares.length).toEqual(1);
@@ -288,6 +148,74 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('PUT')).toEqual(false);
       expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
+      expect(app.middlewares[0].method.test('POST')).toEqual(false);
+    });
+  });
+
+  describe('put', () => {
+    baseSuite(Maitre, 'put');
+
+    it('should only allow PUT methods', () => {
+      const app = new Maitre();
+
+      app.put(() => {});
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0].method.test('GET')).toEqual(false);
+      expect(app.middlewares[0].method.test('PUT')).toEqual(true);
+      expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
+      expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
+      expect(app.middlewares[0].method.test('POST')).toEqual(false);
+    });
+  });
+
+  describe('post', () => {
+    baseSuite(Maitre, 'post');
+
+    it('should only allow POST methods', () => {
+      const app = new Maitre();
+
+      app.post(() => {});
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0].method.test('GET')).toEqual(false);
+      expect(app.middlewares[0].method.test('PUT')).toEqual(false);
+      expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
+      expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
+      expect(app.middlewares[0].method.test('POST')).toEqual(true);
+    });
+  });
+
+  describe('delete', () => {
+    baseSuite(Maitre, 'delete');
+
+    it('should only allow DELETE methods', () => {
+      const app = new Maitre();
+
+      app.delete(() => {});
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0].method.test('GET')).toEqual(false);
+      expect(app.middlewares[0].method.test('PUT')).toEqual(false);
+      expect(app.middlewares[0].method.test('DELETE')).toEqual(true);
+      expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
+      expect(app.middlewares[0].method.test('POST')).toEqual(false);
+    });
+  });
+
+  describe('update', () => {
+    baseSuite(Maitre, 'update');
+
+    it('should only allow UPDATE methods', () => {
+      const app = new Maitre();
+
+      app.update(() => {});
+
+      expect(app.middlewares.length).toEqual(1);
+      expect(app.middlewares[0].method.test('GET')).toEqual(false);
+      expect(app.middlewares[0].method.test('PUT')).toEqual(false);
+      expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
+      expect(app.middlewares[0].method.test('UPDATE')).toEqual(true);
       expect(app.middlewares[0].method.test('POST')).toEqual(false);
     });
   });

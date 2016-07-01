@@ -1,4 +1,5 @@
 import { createServer } from 'net';
+import expect from 'expect';
 
 export async function testPort (port) {
   return new Promise(resolve => {
@@ -22,4 +23,82 @@ export async function testPort (port) {
 
 export function noop() {
   return null;
+}
+
+export function baseSuite(Module, type) {
+  describe(`testing base suite on ${type}`, () => {
+    let app;
+
+    beforeEach(() => {
+      app = new Module();
+    });
+
+    afterEach(() => {
+      app.close();
+      app = undefined;
+    });
+
+    it('should throw an error if you pass an empty path, and no thunk', () => {
+      expect(() => {
+        app[type]('');
+      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    });
+
+    it('should throw an error if you pass a path but no thunk', () => {
+      expect(() => {
+        app[type]('/');
+      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    });
+
+    it('should throw an error if you pass a path and a function and the path is not an object or a string', () => {
+      expect(() => {
+        const path = [];
+        const thunk = () => {};
+
+        app[type](path, thunk);
+      }).toThrow('Path must be an Object, String, or RegExp');
+
+      expect(() => {
+        app[type](true, () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+
+      expect(() => {
+        app[type](false, () => {});
+      }).toThrow('Path must be an Object, String, or RegExp');
+    });
+
+    it('should allow you to pass a thunk as the first argument', () => {
+      app[type](() => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should update `this.middlewares`', () => {
+      app[type](() => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should be chainable', () => {
+      app[type](() => {})[type](() => {});
+      expect(app.middlewares.length).toEqual(2);
+    });
+
+    it('should allow paths to be String', () => {
+      app[type]('/', () => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should allow paths to be Objects', () => {
+      app[type]({
+        path: '/',
+        method: 'GET',
+        thunk() { return; }
+      });
+      expect(app.middlewares.length).toEqual(1);
+    });
+
+    it('should allow paths to be RegExp objects', () => {
+      app[type](/\/foo/, () => {});
+      expect(app.middlewares.length).toEqual(1);
+    });
+  });
 }

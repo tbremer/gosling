@@ -57,9 +57,42 @@ export default class Maitre {
 
     return this;
   }
-  // post(path, thunk) {}
-  // put(path, thunk) {}
-  // delete(path, thunk) {}
+
+  post(path, thunk) {
+    const method = /POST/i;
+    const requestObj = createRequestObj({ path, thunk, method });
+
+    this.middlewares.push(requestObj);
+
+    return this;
+  }
+
+  put(path, thunk) {
+    const method = /PUT/i;
+    const requestObj = createRequestObj({ path, thunk, method });
+
+    this.middlewares.push(requestObj);
+
+    return this;
+  }
+
+  delete(path, thunk) {
+    const method = /DELETE/i;
+    const requestObj = createRequestObj({ path, thunk, method });
+
+    this.middlewares.push(requestObj);
+
+    return this;
+  }
+
+  update(path, thunk) {
+    const method = /UPDATE/i;
+    const requestObj = createRequestObj({ path, thunk, method });
+
+    this.middlewares.push(requestObj);
+
+    return this;
+  }
 
   close(func = noop) {
     if (func.constructor !== Function) func = noop;
