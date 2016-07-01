@@ -1,5 +1,5 @@
 import { createServer } from 'http';
-import { createRequestObj, defaultPathObj } from './utils';
+import { createRequestObj, noop } from './utils';
 
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
@@ -41,32 +41,19 @@ export default class Maitre {
   get port() { return this.__port__; }
 
   use(path, thunk) {
-    if ((!path && !thunk) || (path && path.constructor !== Function && !path.thunk && !thunk)) throw new Error('Use takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    if (path.constructor === Function) {
-      thunk = path;
-      path = Object.assign({}, defaultPathObj);
-    }
+    const method = /./;
+    const requestObj = createRequestObj({ path, thunk, method });
 
-    this.middlewares.push(createRequestObj(path, thunk));
+    this.middlewares.push(requestObj);
 
     return this;
   }
 
   get(path, thunk) {
-    if ((!path && !thunk) || (path && path.constructor !== Function && !path.thunk && !thunk)) throw new Error('Get takes a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    if (path.constructor === Function) {
-      thunk = path;
-      path = Object.assign({}, defaultPathObj, { method: /get/i });
-    }
+    const method = /GET/i;
+    const requestObj = createRequestObj({ path, thunk, method });
 
-    if (path.constructor === String || path instanceof RegExp) {
-      path = {
-        path,
-        method: /get/i
-      };
-    }
-
-    this.middlewares.push(createRequestObj(path, thunk));
+    this.middlewares.push(requestObj);
 
     return this;
   }
@@ -74,7 +61,8 @@ export default class Maitre {
   // put(path, thunk) {}
   // delete(path, thunk) {}
 
-  close(func = () => {}) {
+  close(func = noop) {
+    if (func.constructor !== Function) func = noop;
     this.server.close(func);
   }
 
@@ -83,6 +71,7 @@ export default class Maitre {
 
     switch (true) {
       case (Boolean(!p && this.port)):
+        // everything is fine here, just making sure we don't default.
         break;
 
       case (Boolean(p && !(this.port))):
