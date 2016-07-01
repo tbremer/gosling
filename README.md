@@ -1,7 +1,6 @@
 Maitre
 ---
-
-https://travis-ci.com/tbremer/maitre.svg?token=9LKMnKnKkp5wALpsqe3p&branch=setup
+![travis status](https://travis-ci.com/tbremer/maitre.svg?token=9LKMnKnKkp5wALpsqe3p&branch=setup "Travis Status")
 
 Maitre is a simple es6 node server, it works similar to express.
 
