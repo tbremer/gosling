@@ -81,6 +81,18 @@ export function baseSuite(Module, type) {
       }).toThrow('Path must be an Object, String, or RegExp');
     });
 
+    it('should throw an error if you pass a requestObject without a thunk', () => {
+      expect(() => {
+        const requestObject = {
+          path: /\//,
+          method: /./,
+          thunk: undefined
+        };
+
+        app[type](requestObject);
+      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+    })
+
     it('should allow you to pass a thunk as the first argument', () => {
       app[type](() => {});
       expect(app.middlewares.length).toEqual(1);
