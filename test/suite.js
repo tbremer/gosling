@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import Maitre from '../src';
+import Maitre, { Router } from '../src';
 import { testPort, baseSuite } from './utils';
 
 describe('Maitre', () => {
@@ -10,7 +10,7 @@ describe('Maitre', () => {
 
   it('returns a prototype', () => {
     const app = new Maitre();
-    const proto = [ 'close', /*'delete', 'get',*/ 'listen', /*'post', 'put',*/ 'use' ];
+    const proto = [ 'close', 'delete', 'get', 'listen', 'post', 'put', 'use' ];
 
     proto.forEach(p => expect(app[p].constructor === Function, `${p} is not a function`).toEqual(true));
   });
@@ -217,6 +217,29 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(true);
       expect(app.middlewares[0].method.test('POST')).toEqual(false);
+    });
+  });
+
+  describe('router', () => {
+    let app, router;
+
+    beforeEach(() => {
+      app = new Maitre();
+      router = new Router();
+    });
+
+    afterEach(() => {
+      app = undefined;
+      router = undefined;
+    });
+
+    it('updates middlewares', () => {
+      router.use('/', () => {});
+      router.use('/foo', () => {});
+
+      app.use(router);
+
+      expect(app.middlewares.length).toEqual(2);
     });
   });
 });

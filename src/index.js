@@ -1,6 +1,16 @@
 import { createServer } from 'http';
 import { createRequestObj, noop } from './utils';
 
+function buildMethod (path, thunk, method) {
+  if (path instanceof Router) {
+    this.middlewares.push.apply(this.middlewares, path.middlewares); //eslint-disable-line
+
+    return;
+  }
+
+  return createRequestObj({ path, thunk, method });
+}
+
 export default class Maitre {
   constructor(port = undefined, ...middlewares) {
     this.__port__ = port;
@@ -41,60 +51,49 @@ export default class Maitre {
   get port() { return this.__port__; }
 
   use(path, thunk) {
-    if (path instanceof Router) {
-      console.log('this is a router…');
-      console.log(path);
-    }
+    const reqObj = buildMethod.call(this, path, thunk, /./);
 
-    const method = /./;
-    const requestObj = createRequestObj({ path, thunk, method });
-
-    this.middlewares.push(requestObj);
+    if (reqObj) if (reqObj) this.middlewares.push(reqObj);
 
     return this;
   }
 
   get(path, thunk) {
-    const method = /GET/i;
-    const requestObj = createRequestObj({ path, thunk, method });
+    const reqObj = buildMethod.call(this, path, thunk, /GET/i);
 
-    this.middlewares.push(requestObj);
+    if (reqObj) this.middlewares.push(reqObj);
 
     return this;
   }
 
   post(path, thunk) {
-    const method = /POST/i;
-    const requestObj = createRequestObj({ path, thunk, method });
+    const reqObj = buildMethod.call(this, path, thunk, /POST/i);
 
-    this.middlewares.push(requestObj);
+    if (reqObj) this.middlewares.push(reqObj);
 
     return this;
   }
 
   put(path, thunk) {
-    const method = /PUT/i;
-    const requestObj = createRequestObj({ path, thunk, method });
+    const reqObj = buildMethod.call(this, path, thunk, /PUT/i);
 
-    this.middlewares.push(requestObj);
+    if (reqObj) this.middlewares.push(reqObj);
 
     return this;
   }
 
   delete(path, thunk) {
-    const method = /DELETE/i;
-    const requestObj = createRequestObj({ path, thunk, method });
+    const reqObj = buildMethod.call(this, path, thunk, /DELETE/i);
 
-    this.middlewares.push(requestObj);
+    if (reqObj) this.middlewares.push(reqObj);
 
     return this;
   }
 
   update(path, thunk) {
-    const method = /UPDATE/i;
-    const requestObj = createRequestObj({ path, thunk, method });
+    const reqObj = buildMethod.call(this, path, thunk, /UPDATE/i);
 
-    this.middlewares.push(requestObj);
+    if (reqObj) this.middlewares.push(reqObj);
 
     return this;
   }
@@ -141,9 +140,9 @@ export class Router extends Maitre {
     delete this.__port__;
     delete this.server;
 
-    const undefine = [ 'close', 'listen', 'port', '__port__' ];
+    const FLAGGED_FUNCTIONS = [ 'close', 'listen', 'port', '__port__' ];
 
-    undefine.forEach(u => this[u] = undefined);
-    undefine.forEach(u => delete this[u]);
+    FLAGGED_FUNCTIONS.forEach(u => this[u] = undefined);
+    FLAGGED_FUNCTIONS.forEach(u => delete this[u]);
   }
 }
