@@ -25,7 +25,7 @@ export default class Maitre {
         const middleware = this.middlewares[index];
 
         if (!middleware) {
-          if (!res.finished) res.end('foo');
+          if (!res.finished) res.end();
           index = -1;
 
           return;
@@ -84,14 +84,6 @@ export default class Maitre {
 
   delete(path, thunk) {
     const reqObj = buildMethod.call(this, path, thunk, /DELETE/i);
-
-    if (reqObj) this.middlewares.push(reqObj);
-
-    return this;
-  }
-
-  update(path, thunk) {
-    const reqObj = buildMethod.call(this, path, thunk, /UPDATE/i);
 
     if (reqObj) this.middlewares.push(reqObj);
 

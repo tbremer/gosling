@@ -1,4 +1,5 @@
 import { createServer } from 'net';
+import { request } from 'http';
 import expect from 'expect';
 
 export async function testPort (port) {
@@ -18,6 +19,19 @@ export async function testPort (port) {
     });
 
     server.listen(port);
+  });
+}
+
+export async function testUrl (url) {
+  return new Promise((resolve, reject) => {
+    request(url, res => {
+      let data = '';
+
+      res.on('data', d => data += d);
+      res.on('end', () => resolve(data.toString()));
+    })
+    .on('error', e => reject(e))
+    .end();
   });
 }
 

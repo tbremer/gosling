@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import Maitre, { Router } from '../src';
-import { testPort, baseSuite } from './utils';
+import { testPort, testUrl, baseSuite } from './utils';
 
 describe('Maitre', () => {
   it('is a function', () => {
@@ -133,6 +133,22 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(true);
       expect(app.middlewares[0].method.test('POST')).toEqual(true);
     });
+
+    it('should respond', async done => {
+      const app = new Maitre(1337);
+
+      app.listen();
+      app.use('/', () => (req, res, next) => {
+        res.write('hello world');
+        next();
+      });
+
+      const response = await testUrl('http://localhost:1337/');
+
+      expect(response).toEqual('hello world');
+
+      app.close(done);
+    });
   });
 
   describe('get', () => {
@@ -149,6 +165,29 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
       expect(app.middlewares[0].method.test('POST')).toEqual(false);
+    });
+
+    it('should respond', async done => {
+      const app = new Maitre(1337);
+
+      app.listen();
+      app.get('/', () => (req, res, next) => {
+        res.write('hello world');
+        next();
+      });
+
+      const options = {
+        hostname: 'localhost',
+        path: '/',
+        port: 1337,
+        method: 'GET'
+      };
+
+      const response = await testUrl(options);
+
+      expect(response).toEqual('hello world');
+
+      app.close(done);
     });
   });
 
@@ -167,6 +206,29 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
       expect(app.middlewares[0].method.test('POST')).toEqual(false);
     });
+
+    it('should respond', async done => {
+      const app = new Maitre(1337);
+
+      app.listen();
+      app.put('/', () => (req, res, next) => {
+        res.write('hello world');
+        next();
+      });
+
+      const options = {
+        hostname: 'localhost',
+        path: '/',
+        port: 1337,
+        method: 'PUT'
+      };
+
+      const response = await testUrl(options);
+
+      expect(response).toEqual('hello world');
+
+      app.close(done);
+    });
   });
 
   describe('post', () => {
@@ -183,6 +245,29 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
       expect(app.middlewares[0].method.test('POST')).toEqual(true);
+    });
+
+    it('should respond', async done => {
+      const app = new Maitre(1337);
+
+      app.listen();
+      app.post('/', () => (req, res, next) => {
+        res.write('hello world');
+        next();
+      });
+
+      const options = {
+        hostname: 'localhost',
+        path: '/',
+        port: 1337,
+        method: 'POST'
+      };
+
+      const response = await testUrl(options);
+
+      expect(response).toEqual('hello world');
+
+      app.close(done);
     });
   });
 
@@ -201,22 +286,28 @@ describe('Maitre', () => {
       expect(app.middlewares[0].method.test('UPDATE')).toEqual(false);
       expect(app.middlewares[0].method.test('POST')).toEqual(false);
     });
-  });
 
-  describe('update', () => {
-    baseSuite(Maitre, 'update');
+    it('should respond', async done => {
+      const app = new Maitre(1337);
 
-    it('should only allow UPDATE methods', () => {
-      const app = new Maitre();
+      app.listen();
+      app.delete('/', () => (req, res, next) => {
+        res.write('hello world');
+        next();
+      });
 
-      app.update(() => {});
+      const options = {
+        hostname: 'localhost',
+        path: '/',
+        port: 1337,
+        method: 'DELETE'
+      };
 
-      expect(app.middlewares.length).toEqual(1);
-      expect(app.middlewares[0].method.test('GET')).toEqual(false);
-      expect(app.middlewares[0].method.test('PUT')).toEqual(false);
-      expect(app.middlewares[0].method.test('DELETE')).toEqual(false);
-      expect(app.middlewares[0].method.test('UPDATE')).toEqual(true);
-      expect(app.middlewares[0].method.test('POST')).toEqual(false);
+      const response = await testUrl(options);
+
+      expect(response).toEqual('hello world');
+
+      app.close(done);
     });
   });
 
@@ -240,6 +331,53 @@ describe('Maitre', () => {
       app.use(router);
 
       expect(app.middlewares.length).toEqual(2);
+    });
+
+    it('should allow responses', async (done) => {
+      const app = new Maitre(1337);
+      const router = new Router();
+
+      function useRequest() {
+        return (req, res, next) => {
+          res.write('request method: ');
+          next();
+        };
+      }
+
+      function genericRequest () {
+        return (req, res, next) => {
+          res.write(req.method);
+          next();
+        };
+      }
+
+      router.use(useRequest);
+      router.get('/', genericRequest);
+      router.post('/', genericRequest);
+      router.put('/', genericRequest);
+      router.delete('/', genericRequest);
+
+      app.use(router);
+
+      app.listen();
+
+      const options = {
+        hostname: 'localhost',
+        path: '/',
+        port: 1337
+      };
+
+      const getResponse = await testUrl({ ...options, method: 'GET' });
+      const postResponse = await testUrl({ ...options, method: 'POST' });
+      const putResponse = await testUrl({ ...options, method: 'PUT' });
+      const deleteResponse = await testUrl({ ...options, method: 'DELETE' });
+
+      expect(getResponse).toEqual('request method: GET');
+      expect(postResponse).toEqual('request method: POST');
+      expect(putResponse).toEqual('request method: PUT');
+      expect(deleteResponse).toEqual('request method: DELETE');
+
+      app.close(done);
     });
   });
 });
