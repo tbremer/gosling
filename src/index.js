@@ -41,6 +41,11 @@ export default class Maitre {
   get port() { return this.__port__; }
 
   use(path, thunk) {
+    if (path instanceof Router) {
+      console.log('this is a router…');
+      console.log(path);
+    }
+
     const method = /./;
     const requestObj = createRequestObj({ path, thunk, method });
 
@@ -127,5 +132,18 @@ export default class Maitre {
     }
 
     this.server.listen(this.port, callback);
+  }
+}
+
+export class Router extends Maitre {
+  constructor(...middlewares) {
+    super(undefined, ...middlewares);
+    delete this.__port__;
+    delete this.server;
+
+    const undefine = [ 'close', 'listen', 'port', '__port__' ];
+
+    undefine.forEach(u => this[u] = undefined);
+    undefine.forEach(u => delete this[u]);
   }
 }
