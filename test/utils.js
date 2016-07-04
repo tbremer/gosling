@@ -128,3 +128,17 @@ export function baseSuite(Module, type) {
     });
   });
 }
+
+export function useRequest() {
+  return (req, res, next) => {
+    res.write('request method: ');
+    next();
+  };
+}
+
+export function genericRequest () {
+  return (req, res, next) => {
+    res.write(req.method);
+    next();
+  };
+}

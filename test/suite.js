@@ -1,7 +1,7 @@
 import expect from 'expect';
 
 import Maitre, { Router } from '../src';
-import { testPort, testUrl, baseSuite } from './utils';
+import { testPort, testUrl, baseSuite, useRequest, genericRequest } from './utils';
 
 describe('Maitre', () => {
   it('is a function', () => {
@@ -312,16 +312,22 @@ describe('Maitre', () => {
   });
 
   describe('router', () => {
+    const PORT = 1337;
     let app, router;
 
     beforeEach(() => {
-      app = new Maitre();
+      app = new Maitre(PORT);
       router = new Router();
+
+      app.listen();
     });
 
-    afterEach(() => {
-      app = undefined;
-      router = undefined;
+    afterEach(async done => {
+      const isRunning = await testPort(PORT);
+
+      if (isRunning) await app.close();
+      app = router = undefined;
+      done();
     });
 
     it('updates middlewares', () => {
@@ -334,23 +340,6 @@ describe('Maitre', () => {
     });
 
     it('should allow responses', async (done) => {
-      const app = new Maitre(1337);
-      const router = new Router();
-
-      function useRequest() {
-        return (req, res, next) => {
-          res.write('request method: ');
-          next();
-        };
-      }
-
-      function genericRequest () {
-        return (req, res, next) => {
-          res.write(req.method);
-          next();
-        };
-      }
-
       router.use(useRequest);
       router.get('/', genericRequest);
       router.post('/', genericRequest);
@@ -358,8 +347,6 @@ describe('Maitre', () => {
       router.delete('/', genericRequest);
 
       app.use(router);
-
-      app.listen();
 
       const options = {
         hostname: 'localhost',
@@ -377,6 +364,86 @@ describe('Maitre', () => {
       expect(putResponse).toEqual('request method: PUT');
       expect(deleteResponse).toEqual('request method: DELETE');
 
+      app.close(done);
+    });
+
+    it('should allow string prefxied responses', async done => {
+      router.use(useRequest);
+      router.get('/', genericRequest);
+      router.post('/', genericRequest);
+      router.put('/', genericRequest);
+      router.delete('/', genericRequest);
+
+      app.use('/api', router);
+
+      const options = {
+        hostname: 'localhost',
+        path: '/api/',
+        port: PORT
+      };
+
+      const getResponse = await testUrl({ ...options, method: 'GET' });
+      const postResponse = await testUrl({ ...options, method: 'POST' });
+      const putResponse = await testUrl({ ...options, method: 'PUT' });
+      const deleteResponse = await testUrl({ ...options, method: 'DELETE' });
+
+      expect(getResponse).toEqual('request method: GET');
+      expect(postResponse).toEqual('request method: POST');
+      expect(putResponse).toEqual('request method: PUT');
+      expect(deleteResponse).toEqual('request method: DELETE');
+
+      app.close(done);
+    });
+
+    it('should allow regex prefxied responses', async done => {
+      router.use(useRequest);
+      router.get('/', genericRequest);
+      router.post('/', genericRequest);
+      router.put('/', genericRequest);
+      router.delete('/', genericRequest);
+
+      app.use(/\/api/, router);
+
+      const options = {
+        hostname: 'localhost',
+        path: '/api/',
+        port: PORT
+      };
+
+      const getResponse = await testUrl({ ...options, method: 'GET' });
+      const postResponse = await testUrl({ ...options, method: 'POST' });
+      const putResponse = await testUrl({ ...options, method: 'PUT' });
+      const deleteResponse = await testUrl({ ...options, method: 'DELETE' });
+
+      expect(getResponse).toEqual('request method: GET');
+      expect(postResponse).toEqual('request method: POST');
+      expect(putResponse).toEqual('request method: PUT');
+      expect(deleteResponse).toEqual('request method: DELETE');
+
+      app.close(done);
+    });
+
+    it('should allow for nested prefixes', async done => {
+      const MSG = 'Hello world';
+      const subRouter = new Router();
+
+      subRouter.get('/baz', () => (req, res, next) => {
+        res.write(MSG);
+        next();
+      });
+      router.use('/bar', subRouter);
+
+      app.use('/foo', router);
+
+      const options = {
+        hostname: 'localhost',
+        path: '/foo/bar/baz',
+        port: PORT
+      };
+
+      const getResponse = await testUrl({ ...options, method: 'GET' });
+
+      expect(getResponse).toEqual(MSG);
       app.close(done);
     });
   });

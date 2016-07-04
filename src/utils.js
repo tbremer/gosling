@@ -4,11 +4,7 @@ const baseRequestObj = {
   thunk: undefined
 };
 
-export function noop() {
-  return;
-}
-
-export function createRequestObj({ path, method, thunk }) {
+export function createRequestObj ({ path, method, thunk }) {
   if (path.constructor === Object) {
     const { path: _path, method: _method, thunk: _thunk } = path;
 
@@ -45,4 +41,8 @@ export function createRequestObj({ path, method, thunk }) {
   }
 
   return Object.assign({}, baseRequestObj, { path, method, thunk });
+}
+
+export function noop () {
+  return;
 }

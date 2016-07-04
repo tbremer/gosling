@@ -8,6 +8,23 @@ function buildMethod (path, thunk, method) {
     return;
   }
 
+  if (path && thunk instanceof Router) {
+    const PATH_REPLACER = /^\/|\/$/g;
+
+    const strippedPath = path.constructor === String ? path : path.toString().replace(PATH_REPLACER, '');
+
+    for (const mw of thunk.middlewares) {
+      const PATHOBJ_REPLACER = /(?:^\/\^?)|(?:\$?\/$)/g;
+      const strippedMWPath = mw.path.toString().replace(PATHOBJ_REPLACER, '');
+
+      mw.path = new RegExp(`${strippedPath}${strippedMWPath}`);
+    }
+
+    this.middlewares.push.apply(this.middlewares, thunk.middlewares); //eslint-disable-line
+
+    return;
+  }
+
   return createRequestObj({ path, thunk, method });
 }
 
@@ -92,6 +109,7 @@ export default class Maitre {
 
   close(func = noop) {
     if (func.constructor !== Function) func = noop;
+
     this.server.close(func);
   }
 
