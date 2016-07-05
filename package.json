@@ -1,7 +1,7 @@
 {
-  "name": "maitre",
+  "name": "gosling",
   "version": "0.0.0",
-  "description": "Maitre is a simple es6 node server, similar to express.",
+  "description": "Gosling is a simple es6 node server, similar to express.",
   "main": "dist/index.js",
   "directories": {
     "test": "test"
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tbremer/maitre.git"
+    "url": "git+https://github.com/tbremer/gosling.git"
   },
   "keywords": [
     "webserver",
@@ -23,9 +23,9 @@
   "author": "Tom Bremer",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tbremer/maitre/issues"
+    "url": "https://github.com/tbremer/gosling/issues"
   },
-  "homepage": "https://github.com/tbremer/maitre#readme",
+  "homepage": "https://github.com/tbremer/gosling#readme",
   "devDependencies": {
     "babel-eslint": "^6.0.4",
     "babel-polyfill": "^6.9.1",

@@ -1,15 +1,15 @@
 import expect from 'expect';
 
-import Maitre, { Router } from '../src';
+import Gosling, { Router } from '../src';
 import { testPort, testUrl, baseSuite, useRequest, genericRequest } from './utils';
 
-describe('Maitre', () => {
+describe('Gosling', () => {
   it('is a function', () => {
-    expect(Maitre.constructor === Function).toEqual(true);
+    expect(Gosling.constructor === Function).toEqual(true);
   });
 
   it('returns a prototype', () => {
-    const app = new Maitre();
+    const app = new Gosling();
     const proto = [ 'close', 'delete', 'get', 'listen', 'post', 'put', 'use' ];
 
     proto.forEach(p => expect(app[p].constructor === Function, `${p} is not a function`).toEqual(true));
@@ -17,19 +17,19 @@ describe('Maitre', () => {
 
   describe('port', () => {
     it('is undefined by default', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       expect(app.port === undefined).toEqual(true);
     });
 
     it('sets port number from the constructor', () => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       expect(app.port === 1337).toEqual(true);
     });
 
     it('sets port number from a setter', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.port = 1337;
 
@@ -37,7 +37,7 @@ describe('Maitre', () => {
     });
 
     it('sets the portnumber through the listener', done => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.listen(1337);
 
@@ -48,7 +48,7 @@ describe('Maitre', () => {
     });
 
     it('A port has to be set.', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       expect(() => {
         app.listen();
@@ -57,7 +57,7 @@ describe('Maitre', () => {
 
     describe('disallows the port number to be overwritten', () => {
       it('port set in constructor cannot be modified', () => {
-        const app = new Maitre(1337);
+        const app = new Gosling(1337);
 
         expect(() => {
           app.port = 12345;
@@ -65,7 +65,7 @@ describe('Maitre', () => {
       });
 
       it('port set in constructor cannot be modified', () => {
-        const app = new Maitre();
+        const app = new Gosling();
 
         app.port = 12345;
 
@@ -78,7 +78,7 @@ describe('Maitre', () => {
 
   describe('close', () => {
     it('should close the existing server', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
 
@@ -96,7 +96,7 @@ describe('Maitre', () => {
   describe('listen', () => {
     it('optionally takes a callback', done => {
       const spy = expect.createSpy();
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen(spy);
 
@@ -107,7 +107,7 @@ describe('Maitre', () => {
     });
 
     it('starts listening on set port', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
 
@@ -119,10 +119,10 @@ describe('Maitre', () => {
   });
 
   describe('use', () => {
-    baseSuite(Maitre, 'use');
+    baseSuite(Gosling, 'use');
 
     it('should allow any method', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.use(() => {});
 
@@ -135,7 +135,7 @@ describe('Maitre', () => {
     });
 
     it('should respond', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
       app.use('/', () => (req, res, next) => {
@@ -152,10 +152,10 @@ describe('Maitre', () => {
   });
 
   describe('get', () => {
-    baseSuite(Maitre, 'get');
+    baseSuite(Gosling, 'get');
 
     it('should only allow GET methods', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.get(() => {});
 
@@ -168,7 +168,7 @@ describe('Maitre', () => {
     });
 
     it('should respond', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
       app.get('/', () => (req, res, next) => {
@@ -192,10 +192,10 @@ describe('Maitre', () => {
   });
 
   describe('put', () => {
-    baseSuite(Maitre, 'put');
+    baseSuite(Gosling, 'put');
 
     it('should only allow PUT methods', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.put(() => {});
 
@@ -208,7 +208,7 @@ describe('Maitre', () => {
     });
 
     it('should respond', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
       app.put('/', () => (req, res, next) => {
@@ -232,10 +232,10 @@ describe('Maitre', () => {
   });
 
   describe('post', () => {
-    baseSuite(Maitre, 'post');
+    baseSuite(Gosling, 'post');
 
     it('should only allow POST methods', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.post(() => {});
 
@@ -248,7 +248,7 @@ describe('Maitre', () => {
     });
 
     it('should respond', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
       app.post('/', () => (req, res, next) => {
@@ -272,10 +272,10 @@ describe('Maitre', () => {
   });
 
   describe('delete', () => {
-    baseSuite(Maitre, 'delete');
+    baseSuite(Gosling, 'delete');
 
     it('should only allow DELETE methods', () => {
-      const app = new Maitre();
+      const app = new Gosling();
 
       app.delete(() => {});
 
@@ -288,7 +288,7 @@ describe('Maitre', () => {
     });
 
     it('should respond', async done => {
-      const app = new Maitre(1337);
+      const app = new Gosling(1337);
 
       app.listen();
       app.delete('/', () => (req, res, next) => {
@@ -316,7 +316,7 @@ describe('Maitre', () => {
     let app, router;
 
     beforeEach(() => {
-      app = new Maitre(PORT);
+      app = new Gosling(PORT);
       router = new Router();
 
       app.listen();

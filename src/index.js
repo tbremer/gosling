@@ -28,7 +28,7 @@ function buildMethod (path, thunk, method) {
   return createRequestObj({ path, thunk, method });
 }
 
-export default class Maitre {
+export default class Gosling {
   constructor(port = undefined, ...middlewares) {
     this.__port__ = port;
     this.middlewares = middlewares;
@@ -137,14 +137,14 @@ export default class Maitre {
         throw new Error('Port should not be reassigned.');
 
       default:
-        throw new Error('Default has been reached, please file a bug with your set up on https://github.com/tbremer/maitre Thanks!');
+        throw new Error('Default has been reached, please file a bug with your set up on https://github.com/tbremer/gosling Thanks!');
     }
 
     this.server.listen(this.port, callback);
   }
 }
 
-export class Router extends Maitre {
+export class Router extends Gosling {
   constructor(...middlewares) {
     super(undefined, ...middlewares);
     delete this.__port__;

@@ -1,16 +1,16 @@
-Maitre
+Gosling
 ---
 
-[![Travis](https://img.shields.io/travis/tbremer/maitre.svg?maxAge=2592000?style=flat-square)]() [![npm](https://img.shields.io/npm/v/maitre.svg?maxAge=2592000?style=flat-square)]() [![npm](https://img.shields.io/npm/l/maitre.svg?maxAge=2592000?style=flat-square)]()
+[![Travis](https://img.shields.io/travis/tbremer/gosling.svg?maxAge=2592000?style=flat-square)]() [![npm](https://img.shields.io/npm/v/gosling.svg?maxAge=2592000?style=flat-square)]() [![npm](https://img.shields.io/npm/l/gosling.svg?maxAge=2592000?style=flat-square)]()
 
-Maitre is simple, plugin ready es6 node server similar to express.
+Gosling is simple, plugin ready es6 node server similar to express.
 
 ## Use:
 
 ```javascript
-import Maitre from 'maitre';
+import Gosling from 'gosling';
 
-const app = new Maitr(1337);
+const app = new Gosling(1337);
 app.listen();
 
 app.use('/', () => (request, response, next) => {
@@ -20,12 +20,12 @@ app.use('/', () => (request, response, next) => {
 ```
 
 ## Router
-Maitre ships with a router bundled, it can be accessed by importing separately
+Gosling ships with a router bundled, it can be accessed by importing separately
 
 ```javascript
-import Maitre, { Router } from 'maitre';
+import Gosling, { Router } from 'gosling';
 
-const app = new Maitre(1337);
+const app = new Gosling(1337);
 const router = new Router();
 
 app.listen();
@@ -40,7 +40,7 @@ When assigning a path to router that router is then scoped to only process reque
 Routers are completely recursive and can be nested deeply.
 
 ```javascript
-import { Router } from 'maitre';
+import { Router } from 'gosling';
 
 const router = new Router();
 const subrouter = new Router();
@@ -52,13 +52,13 @@ export router;
 ```
 
 ### Use In Depth
-Maitre's constructor takes the following optional arguments:
+Gosling's constructor takes the following optional arguments:
 
 - **port** (Number);
 - **middleware** (as Request Objects);
 
 ## Full API
-Once instantiated Maitre's offers the following methods:
+Once instantiated Gosling's offers the following methods:
 
 - `listen`
   - Starts server.
@@ -113,7 +113,7 @@ The `methods` (`get`, `post`, `put`, `delete`, `use`) API takes two arguments an
     - Thunk (function returning function) [required]
 
 ### Request Objects
-Request Objects are the heart of Maitre's speed and simplicity. They can be hand coded or passed through the `method` API reducer.
+Request Objects are the heart of Gosling's speed and simplicity. They can be hand coded or passed through the `method` API reducer.
 
 ```javascript
 // Request Object
