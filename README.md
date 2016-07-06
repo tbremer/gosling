@@ -58,7 +58,7 @@ Gosling's constructor takes the following optional arguments:
 - **middleware** (as Request Objects);
 
 ## Full API
-Once instantiated Gosling's offers the following methods:
+Once instantiated Gosling offers the following methods:
 
 - `listen`
   - Starts server.
@@ -111,6 +111,7 @@ Once instantiated Gosling's offers the following methods:
 The `methods` (`get`, `post`, `put`, `delete`, `use`) API takes two arguments and creates Request Objects…
     - Path (as String or RegExp) [optional]
     - Thunk (function returning function) [required]
+    - **Note:** All method calls are chainable `app.use().get().post()` is valid.
 
 ### Request Objects
 Request Objects are the heart of Gosling's speed and simplicity. They can be hand coded or passed through the `method` API reducer.
@@ -142,8 +143,9 @@ app.delete('<Path>', () => (req, res, next) => {});
 ```
 
 ### Notes
-
-    - the `methods` API does the work of Method checking, so no need to pass that.
-    - the `use` method will try to run on every request.
-    - if no `path` is passed in, the thunk is processed on all matching request methods.
-        - `app.use(() => (req, res, next) => {})` will be run on *all* requests.
+- the `methods` API does the work of Method checking, so no need to pass that.
+- the `use` method will try to run on every request.
+- if no `path` is passed in, the thunk is processed on all matching request methods.
+  - `app.use(() => (req, res, next) => {})` will be run on *all* requests.
+- All `method` calls are chainable
+  - `app.use(() => {}).get(() => {}).post(() => {});`
