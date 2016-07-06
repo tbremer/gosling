@@ -45,7 +45,7 @@ import { Router } from 'gosling';
 const router = new Router();
 const subrouter = new Router();
 
-subrouter.get(/\/post/[a-z0-9]+$/, logBlogEntry);
+subrouter.get(/\/post/[a-z0-9]+$/, bobsLawBlog);
 router.use('/api/blog', subrouter);
 
 export router;
@@ -69,7 +69,7 @@ Once instantiated Gosling's offers the following methods:
 - `close`
   - Stops server
   - **Arguments:**
-  - callback (`Function`)
+    - callback (`Function`)
 
 - `port`
   - Sets port if not set through constructor
