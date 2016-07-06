@@ -5,7 +5,7 @@ Gosling
 
 Gosling is simple, plugin ready es6 node server similar to express.
 
-## Use:
+## Basic Use
 
 ```javascript
 import Gosling from 'gosling';
@@ -45,13 +45,13 @@ import { Router } from 'gosling';
 const router = new Router();
 const subrouter = new Router();
 
-subrouter.get(/\/post/[a-z0-9]+$/, bobsLawBlog);
+subrouter.get(/\/post\/[a-z0-9]+$/, bobsLawBlog);
 router.use('/api/blog', subrouter);
 
 export router;
 ```
 
-### Use In Depth
+## In Depth Use
 Gosling's constructor takes the following optional arguments:
 
 - **port** (Number);
@@ -106,14 +106,13 @@ Once instantiated Gosling offers the following methods:
     - Path [optional] `String` or `RegExp`
     - Thunk
 
-### Methods API in depth
-
+## Methods API in depth
 The `methods` (`get`, `post`, `put`, `delete`, `use`) API takes two arguments and creates Request Objects…
     - Path (as String or RegExp) [optional]
     - Thunk (function returning function) [required]
     - **Note:** All method calls are chainable `app.use().get().post()` is valid.
 
-### Request Objects
+## Request Objects
 Request Objects are the heart of Gosling's speed and simplicity. They can be hand coded or passed through the `method` API reducer.
 
 ```javascript
@@ -131,7 +130,7 @@ Request Objects are the heart of Gosling's speed and simplicity. They can be han
 }
 ```
 
-### Sample Usage
+## Sample Usage
 You can use the simple API to produce Request Objects by:
 
 ```javascript
@@ -142,7 +141,7 @@ app.put('<Path>', () => (req, res, next) => {});
 app.delete('<Path>', () => (req, res, next) => {});
 ```
 
-### Notes
+## Notes
 - the `methods` API does the work of Method checking, so no need to pass that.
 - the `use` method will try to run on every request.
 - if no `path` is passed in, the thunk is processed on all matching request methods.
