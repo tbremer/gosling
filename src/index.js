@@ -50,9 +50,8 @@ export default class Gosling {
 
         if (!middleware.path.test(req.url)) return next();
         if (!middleware.method.test(req.method)) return next();
-        const thunk = middleware.thunk();
 
-        return thunk(req, res, next);
+        return middleware.thunk()(req, res, next);
       };
 
       next();
