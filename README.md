@@ -1,7 +1,9 @@
 Gosling
 ---
 
-[![Travis](https://img.shields.io/travis/tbremer/gosling.svg?maxAge=2592000?style=flat-square)]() [![npm](https://img.shields.io/npm/v/gosling.svg?maxAge=2592000?style=flat-square)]() [![npm](https://img.shields.io/npm/l/gosling.svg?maxAge=2592000?style=flat-square)]()
+[![Travis](https://img.shields.io/travis/tbremer/gosling.svg?maxAge=2592000?style=flat-square)](https://travis-ci.org/tbremer/gosling)
+[![npm](https://img.shields.io/npm/v/gosling.svg?maxAge=2592000?style=flat-square)](https://www.npmjs.com/package/gosling)
+[![npm](https://img.shields.io/npm/l/gosling.svg?maxAge=2592000?style=flat-square)](https://github.com/tbremer/gosling/blob/master/LICENSE)
 
 Gosling is simple, plugin ready es6 node server similar to express.
 
