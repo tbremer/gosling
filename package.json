@@ -1,6 +1,6 @@
 {
   "name": "gosling",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Gosling is a simple es6 node server, similar to express.",
   "main": "dist/index.js",
   "scripts": {
