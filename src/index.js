@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+import { createServer as createSecureServer } from 'https';
 import { createRequestObj, noop } from './utils';
 
 function buildMethod (path, thunk, method) {
@@ -29,10 +30,16 @@ function buildMethod (path, thunk, method) {
 }
 
 export default class Gosling {
-  constructor(port = undefined, ...middlewares) {
+  constructor(port = undefined, httpsOptions, ...middlewares) {
     this.__port__ = port;
     this.middlewares = middlewares;
     this.server = createServer();
+
+    if (httpsOptions && httpsOptions.key) {
+      this.server = createSecureServer(httpsOptions);
+    } else if (httpsOptions && httpsOptions.thunk) {
+      this.middlewares.unshift(httpsOptions);
+    }
 
     this.server.on('request', (req, res) => {
       let index = -1;
