@@ -564,6 +564,42 @@ describe('Gosling', () => {
       app.close(done);
     });
 
+    it('should allow https access with httpsOptions as first argument', async done => {
+      const generalSpy = expect.createSpy();
+      const getFooSpy = expect.createSpy();
+
+      const httpsOptions = {
+        key: readFileSync(`${__dirname}/lib/ssl/key.pem`).toString(),
+        cert: readFileSync(`${__dirname}/lib/ssl/cert.pem`).toString()
+      };
+
+      app = new Gosling(httpsOptions);
+      app.listen(PORT);
+      app.use(() => (req, res, next) => {
+        generalSpy();
+        next();
+      });
+
+      app.get('/foo', () => (req, res, next) => {
+        getFooSpy();
+        next();
+      });
+
+      const requestOptions = {
+        hostname: 'localhost',
+        path: '/foo',
+        port: 1337,
+        method: 'GET'
+      };
+
+      await testHTTPSUrl(requestOptions);
+
+      expect(generalSpy.calls.length).toBe(1);
+      expect(getFooSpy.calls.length).toBe(1);
+
+      app.close(done);
+    });
+
     it('should throw on bad HTTPS configs', () => {
       expect(() => {
         app = new Gosling(PORT, { key: 'false' });

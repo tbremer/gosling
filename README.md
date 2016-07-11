@@ -21,6 +21,26 @@ app.use('/', () => (request, response, next) => {
 });
 ```
 
+## HTTPS
+
+HTTPS can be used out of the box with Gosling. Pass a [node https options object](https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener) to the constructor.
+
+*Note*: HTTPS Options should either be the first or second argument, if second we assume Port is the first.
+
+```javascript
+import { readFileSync } from 'fs';
+import Gosling from 'gosling';
+
+const httpsOptions = {
+  key: readFileSync('./ssl/key.pem'),
+  cert: readFileSync('./ssl/cert.pem')
+};
+
+const app = new Gosling(1337, httpsOptions);
+
+app.listen();
+```
+
 ## Router
 Gosling ships with a router bundled, it can be accessed by importing separately
 
@@ -57,6 +77,7 @@ export router;
 Gosling's constructor takes the following optional arguments:
 
 - **port** (Number);
+- **HTTPS Options** (Object);
 - **middleware** (as Request Objects);
 
 ## Full API

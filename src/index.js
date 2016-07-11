@@ -35,7 +35,21 @@ export default class Gosling {
     this.middlewares = middlewares;
     this.server = createServer();
 
-    if (httpsOptions && httpsOptions.key) {
+    /**
+     * HTTPS CHECKING
+     * 1:
+     *   if we have a port, the port is an object, and the port has a "key" key
+     *   in it
+     * 2: (OR)
+     *   if httpsOptions is declared and httpsOptions has a "key" key in it.
+     */
+    if ((port && port.constructor === Object && port.key) || (httpsOptions && httpsOptions.key)) {
+      if (port.constructor === Object) {
+        httpsOptions = port;
+        port = undefined;
+        this.__port__ = undefined;
+      }
+
       try {
         this.server = createSecureServer(httpsOptions);
       } catch (e) {
