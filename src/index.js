@@ -36,7 +36,11 @@ export default class Gosling {
     this.server = createServer();
 
     if (httpsOptions && httpsOptions.key) {
-      this.server = createSecureServer(httpsOptions);
+      try {
+        this.server = createSecureServer(httpsOptions);
+      } catch (e) {
+        throw e;
+      }
     } else if (httpsOptions && httpsOptions.thunk) {
       this.middlewares.unshift(httpsOptions);
     }

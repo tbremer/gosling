@@ -1,7 +1,8 @@
 import expect from 'expect';
+import { readFileSync } from 'fs';
 
 import Gosling, { Router } from '../src';
-import { testPort, testUrl, baseSuite, useRequest, genericRequest } from './utils';
+import { testPort, testUrl, testHTTPSUrl, baseSuite, useRequest, genericRequest } from './utils';
 
 describe('Gosling', () => {
   it('is a function', () => {
@@ -445,6 +446,128 @@ describe('Gosling', () => {
 
       expect(getResponse).toEqual(MSG);
       app.close(done);
+    });
+  });
+
+  describe('middlewares', () => {
+    const PORT = 1337;
+    let app;
+
+    afterEach(async done => {
+      const isRunning = await testPort(PORT);
+
+      if (isRunning) await app.close();
+      app = undefined;
+      done();
+    });
+
+    it('should allow middleware objects to be passed through the constructor', async done => {
+      const generalSpy = expect.createSpy();
+      const getFooSpy = expect.createSpy();
+      const middleware = [
+        {
+          path: /./,
+          method: /./,
+          thunk: () => (req, res, next) => {
+            generalSpy();
+            next();
+          }
+        },
+        {
+          path: /\/foo/,
+          method: /./,
+          thunk: () => (req, res, next) => {
+            getFooSpy();
+            next();
+          }
+        }
+      ];
+      const httpsOptions = {
+        key: readFileSync(`${__dirname}/lib/ssl/key.pem`).toString(),
+        cert: readFileSync(`${__dirname}/lib/ssl/cert.pem`).toString()
+      };
+
+      app = new Gosling(PORT, httpsOptions, ...middleware);
+
+      app.listen();
+
+      const requestOptions = {
+        hostname: 'localhost',
+        path: '/foo',
+        port: 1337,
+        method: 'GET'
+      };
+
+      await testHTTPSUrl(requestOptions);
+
+      expect(generalSpy.calls.length).toBe(1);
+      expect(getFooSpy.calls.length).toBe(1);
+
+      app.close(done);
+    });
+  });
+
+  describe('https', () => {
+    const PORT = 1337;
+    let app;
+
+    afterEach(async done => {
+      const isRunning = await testPort(PORT);
+
+      if (isRunning) await app.close();
+      app = undefined;
+      done();
+    });
+
+    it('should allow https access', async done => {
+      const generalSpy = expect.createSpy();
+      const getFooSpy = expect.createSpy();
+      const middleware = [
+        {
+          path: /./,
+          method: /./,
+          thunk: () => (req, res, next) => {
+            generalSpy();
+            next();
+          }
+        },
+        {
+          path: /\/foo/,
+          method: /./,
+          thunk: () => (req, res, next) => {
+            getFooSpy();
+            next();
+          }
+        }
+      ];
+      const httpsOptions = {
+        key: readFileSync(`${__dirname}/lib/ssl/key.pem`).toString(),
+        cert: readFileSync(`${__dirname}/lib/ssl/cert.pem`).toString()
+      };
+
+      app = new Gosling(PORT, httpsOptions, ...middleware);
+
+      app.listen();
+
+      const requestOptions = {
+        hostname: 'localhost',
+        path: '/foo',
+        port: 1337,
+        method: 'GET'
+      };
+
+      await testHTTPSUrl(requestOptions);
+
+      expect(generalSpy.calls.length).toBe(1);
+      expect(getFooSpy.calls.length).toBe(1);
+
+      app.close(done);
+    });
+
+    it('should throw on bad HTTPS configs', () => {
+      expect(() => {
+        app = new Gosling(PORT, { key: 'false' });
+      }).toThrow('error:0906D06C:PEM routines:PEM_read_bio:no start line');
     });
   });
 });

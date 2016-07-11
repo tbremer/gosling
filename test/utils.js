@@ -1,5 +1,6 @@
 import { createServer } from 'net';
 import { request } from 'http';
+import { request as requestSecure } from 'https';
 import expect from 'expect';
 
 export async function testPort (port) {
@@ -25,6 +26,21 @@ export async function testPort (port) {
 export async function testUrl (url) {
   return new Promise((resolve, reject) => {
     request(url, res => {
+      let data = '';
+
+      res.on('data', d => data += d);
+      res.on('end', () => resolve(data.toString()));
+    })
+    .on('error', e => reject(e))
+    .end();
+  });
+}
+
+export async function testHTTPSUrl (url) {
+  if (url.constructor === Object && !url.rejectUnauthorized) url.rejectUnauthorized = false;
+
+  return new Promise((resolve, reject) => {
+    requestSecure(url, res => {
       let data = '';
 
       res.on('data', d => data += d);
@@ -91,7 +107,7 @@ export function baseSuite(Module, type) {
 
         app[type](requestObject);
       }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
-    })
+    });
 
     it('should allow you to pass a thunk as the first argument', () => {
       app[type](() => {});
