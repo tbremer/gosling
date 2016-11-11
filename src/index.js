@@ -66,7 +66,7 @@ export default class Gosling {
         index++;
         const middleware = this.middlewares[index];
 
-        if (!middleware) {
+        if (!middleware || res.finished) {
           if (!res.finished) res.end();
           index = -1;
 

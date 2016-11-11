@@ -507,6 +507,39 @@ describe('Gosling', () => {
     });
   });
 
+  describe('next', () => {
+    it('stops execution if middleware are left but `res.end()` was called', async done => {
+      const app = new Gosling(1337);
+      let liar = false;
+      let truthSayer = false
+
+      app.listen();
+      app.use(() => (req, res, next) => {
+        truthSayer = true;
+        res.end();
+        next();
+      });
+      app.use(() => (req, res, next) => {
+        liar = true;
+        next();
+      });
+
+      const options = {
+        hostname: 'localhost',
+        path: '/',
+        port: 1337,
+        method: 'GET'
+      };
+
+      const response = await testUrl(options);
+
+      expect(truthSayer).toBe(true);
+      expect(liar).toBe(false);
+
+      app.close(done);
+    });
+  });
+
   describe('https', () => {
     const PORT = 1337;
     let app;
