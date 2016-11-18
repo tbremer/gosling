@@ -71,7 +71,7 @@ export function baseSuite(Module, type) {
     it('should throw an error if you pass an empty path, and no thunk', () => {
       expect(() => {
         app[type]('');
-      }).toThrow('Middleware take a path and a thunk. Pathing is optional, but is always passed first if both are preset.');
+      }).toThrow('Path or Thunk required.');
     });
 
     it('should throw an error if you pass a path but no thunk', () => {
@@ -82,10 +82,7 @@ export function baseSuite(Module, type) {
 
     it('should throw an error if you pass a path and a function and the path is not an object or a string', () => {
       expect(() => {
-        const path = [];
-        const thunk = () => {};
-
-        app[type](path, thunk);
+        app[type]([], () => {});
       }).toThrow('Path must be an Object, String, or RegExp');
 
       expect(() => {

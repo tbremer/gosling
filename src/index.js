@@ -1,33 +1,6 @@
 import { createServer } from 'http';
 import { createServer as createSecureServer } from 'https';
-import { createRequestObj, noop } from './utils';
-
-function buildMethod (path, thunk, method) {
-  if (path instanceof Router) {
-    this.middlewares.push.apply(this.middlewares, path.middlewares); //eslint-disable-line
-
-    return;
-  }
-
-  if (path && thunk instanceof Router) {
-    const PATH_REPLACER = /^\/|\/$/g;
-
-    const strippedPath = path.constructor === String ? path : path.toString().replace(PATH_REPLACER, '');
-
-    for (const mw of thunk.middlewares) {
-      const PATHOBJ_REPLACER = /(?:^\/\^?)|(?:\$?\/$)/g;
-      const strippedMWPath = mw.path.toString().replace(PATHOBJ_REPLACER, '');
-
-      mw.path = new RegExp(`${strippedPath}${strippedMWPath}`);
-    }
-
-    this.middlewares.push.apply(this.middlewares, thunk.middlewares); //eslint-disable-line
-
-    return;
-  }
-
-  return createRequestObj({ path, thunk, method });
-}
+import { noop, requestFactory } from './utils';
 
 export default class Gosling {
   constructor(port = undefined, httpsOptions, ...middlewares) {
@@ -91,42 +64,42 @@ export default class Gosling {
 
   get port() { return this.__port__; }
 
-  use(path, thunk) {
-    const reqObj = buildMethod.call(this, path, thunk, /./);
+  use(path, ...thunks) {
+    const method = /./;
 
-    if (reqObj) if (reqObj) this.middlewares.push(reqObj);
-
-    return this;
-  }
-
-  get(path, thunk) {
-    const reqObj = buildMethod.call(this, path, thunk, /GET/i);
-
-    if (reqObj) this.middlewares.push(reqObj);
+    requestFactory.call(this, path, method, false, thunks);
 
     return this;
   }
 
-  post(path, thunk) {
-    const reqObj = buildMethod.call(this, path, thunk, /POST/i);
+  get(path, ...thunks) {
+    const method = /GET/i;
 
-    if (reqObj) this.middlewares.push(reqObj);
-
-    return this;
-  }
-
-  put(path, thunk) {
-    const reqObj = buildMethod.call(this, path, thunk, /PUT/i);
-
-    if (reqObj) this.middlewares.push(reqObj);
+    requestFactory.call(this, path, method, false, thunks);
 
     return this;
   }
 
-  delete(path, thunk) {
-    const reqObj = buildMethod.call(this, path, thunk, /DELETE/i);
+  post(path, ...thunks) {
+    const method = /POST/i;
 
-    if (reqObj) this.middlewares.push(reqObj);
+    requestFactory.call(this, path, method, false, thunks);
+
+    return this;
+  }
+
+  put(path, ...thunks) {
+    const method = /PUT/i;
+
+    requestFactory.call(this, path, method, false, thunks);
+
+    return this;
+  }
+
+  delete(path, ...thunks) {
+    const method = /DELETE/i;
+
+    requestFactory.call(this, path, method, false, thunks);
 
     return this;
   }
@@ -141,8 +114,8 @@ export default class Gosling {
     let callback = func ? func : () => {};
 
     switch (true) {
+      // Everything is fine here, just making sure we don't default.
       case (Boolean(!p && this.port)):
-        // everything is fine here, just making sure we don't default.
         break;
 
       case (Boolean(p && !(this.port))):

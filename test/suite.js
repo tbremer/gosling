@@ -505,6 +505,159 @@ describe('Gosling', () => {
 
       app.close(done);
     });
+
+    it('should allow multiple middleware for one route', async function test () {
+      let spy1Bool = false;
+      let spy2Bool = false;
+      let spy3Bool = false;
+
+      function spy1() {
+        return (req, res, next) => {
+          spy1Bool = true;
+
+          return next();
+        };
+      }
+
+      function spy2() {
+        return (req, res, next) => {
+          spy2Bool = true;
+
+          return next();
+        };
+      }
+
+      function spy3() {
+        return (req, res, next) => {
+          spy3Bool = true;
+
+          return next();
+        };
+      }
+
+      app = new Gosling(PORT);
+      app.listen();
+      app.get('/test-multiple', spy1, spy2).use(spy3);
+
+      const options = {
+        hostname: 'localhost',
+        path: '/test-multiple',
+        port: 1337,
+        method: 'GET'
+      };
+
+      await testUrl(options);
+
+      expect(spy1Bool).toEqual(true, 'Spy 1');
+      expect(spy2Bool).toEqual(true, 'Spy 2');
+      expect(spy3Bool).toEqual(true, 'Spy 3');
+    });
+
+    it('should chain multiple request types', async function test () {
+      let spy1Bool = false;
+      let spy2Bool = false;
+      let spy3Bool = false;
+
+      function spy1() {
+        return (req, res, next) => {
+          spy1Bool = true;
+
+          return next();
+        };
+      }
+
+      function spy2() {
+        return (req, res, next) => {
+          spy2Bool = true;
+
+          return next();
+        };
+      }
+
+      function spy3() {
+        return (req, res, next) => {
+          spy3Bool = true;
+
+          return next();
+        };
+      }
+
+      const options = {
+        hostname: 'localhost',
+        path: '/test-multiple',
+        port: 1337,
+        method: 'GET'
+      };
+
+      app = new Gosling(PORT);
+      app.listen();
+      app.use(spy2, spy3).get('/test-multiple', spy1); // eslint-disable-line
+
+      await testUrl(options);
+
+      expect(spy1Bool).toEqual(true, 'Spy 1 Ran');
+      expect(spy2Bool).toEqual(true, 'Spy 2 Ran');
+      expect(spy3Bool).toEqual(true, 'Spy 3 Ran');
+    });
+
+    it('should throw an error if using RequestObjects without a thunk', () => {
+      const error = 'Missing `thunk` in RequestObject.';
+
+      expect(() => {
+        app = new Gosling(PORT);
+        app.listen();
+        app.use({ path: '/bar', thunk: () => {} }, { method: /GET/i });
+      }).toThrow(error);
+    });
+
+    it('allows for multiple methods within a chain of thunks', async function test () {
+      let spy1Bool = false;
+      let spy2Bool = false;
+      let spy3Bool = false;
+
+      function spy1() {
+        return (req, res, next) => {
+          spy1Bool = true;
+
+          return next();
+        };
+      }
+
+      function spy2() {
+        return (req, res, next) => {
+          spy2Bool = true;
+
+          return next();
+        };
+      }
+
+      function spy3() {
+        return (req, res, next) => {
+          spy3Bool = true;
+
+          return next();
+        };
+      }
+
+      const options = {
+        hostname: 'localhost',
+        path: '/test-multiple',
+        port: 1337,
+        method: 'GET'
+      };
+
+      app = new Gosling(PORT);
+      app.listen();
+      app.use('/test-multiple', { method: /GET/i, thunk: spy1 }, { method: /POST/i, thunk: spy2 }, { method: /PUT/i, thunk: spy3 });
+
+      await testUrl(options);
+      await testUrl({ ...options, method: 'post' });
+      await testUrl({ ...options, method: 'put' });
+
+      expect(spy1Bool).toEqual(true, 'Spy 1 Ran');
+      expect(spy2Bool).toEqual(true, 'Spy 2 Ran');
+      expect(spy3Bool).toEqual(true, 'Spy 3 Ran');
+    });
   });
 
   describe('next', () => {

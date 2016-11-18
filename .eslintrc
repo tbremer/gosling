@@ -3,6 +3,7 @@
   "plugins": [ "babel" ],
   "extends": "tbremer",
   "rules": {
+    "max-params": [2, 4],
     "require-yield": 0,
     "generator-star-spacing": 0,
     "babel/generator-star-spacing": 1,
